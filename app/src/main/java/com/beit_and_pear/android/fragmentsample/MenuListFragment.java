@@ -1,6 +1,7 @@
 package com.beit_and_pear.android.fragmentsample;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -8,6 +9,7 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
@@ -104,6 +106,29 @@ public class MenuListFragment extends Fragment {
         int[] to = {android.R.id.text1, android.R.id.text2};
         SimpleAdapter adapter = new SimpleAdapter(parentActivity, menuList, android.R.layout.simple_list_item_2, from, to);
         lvMenu.setAdapter(adapter);
+
+        // リスナの登録
+        lvMenu.setOnItemClickListener(new ListItemClickListener());
         return view;
     }
+
+
+    private class ListItemClickListener implements AdapterView.OnItemClickListener {
+
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            Map<String, String> item = (Map<String, String>) parent.getItemAtPosition(position);
+            String menuName = item.get("name");
+            String menuPrice = item.get("price");
+
+            Activity parentActivity = getActivity();
+
+            Intent intent = new Intent(parentActivity, MenuThanksActivity.class);
+            intent.putExtra("menuName", menuName);
+            intent.putExtra("menuPrice", menuPrice);
+
+            startActivity(intent);
+        }
+    }
+
 }
