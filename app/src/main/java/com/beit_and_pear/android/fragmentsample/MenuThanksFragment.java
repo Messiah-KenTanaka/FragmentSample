@@ -4,7 +4,10 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +18,19 @@ import android.widget.TextView;
 
 public class MenuThanksFragment extends Fragment {
 
+    // 大画面かどうかの判定フラグ
+    private boolean _isLayoutXLarge = true;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        FragmentManager manager = getFragmentManager();
+        MenuListFragment menuListFragment = (MenuListFragment) manager.findFragmentById(R.id.fragmentMenuList);
+
+        if (menuListFragment == null) {
+            _isLayoutXLarge = false;
+        }
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -24,9 +40,13 @@ public class MenuThanksFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_menu_thanks_fragmnet, container, false);
 
-        Intent intent = parentActivity.getIntent();
-
-        Bundle extras = intent.getExtras();
+        Bundle extras;
+        if (_isLayoutXLarge) {
+            extras = getArguments();
+        } else {
+            Intent intent = parentActivity.getIntent();
+            extras = intent.getExtras();
+        }
 
         String menuName = "";
         String menuPrice = "";
@@ -49,8 +69,15 @@ public class MenuThanksFragment extends Fragment {
     private class ButtonClickListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            Activity parentActivity = getActivity();
-            parentActivity.finish();
+            if (_isLayoutXLarge) {
+                FragmentManager manager = getFragmentManager();
+                FragmentTransaction transaction = manager.beginTransaction();
+                transaction.remove(MenuThanksFragment.this);
+                transaction.commit();
+            } else {
+                Activity parentActivity = getActivity();
+                parentActivity.finish();
+            }
         }
     }
 }

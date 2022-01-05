@@ -4,7 +4,10 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,6 +22,19 @@ import java.util.List;
 import java.util.Map;
 
 public class MenuListFragment extends Fragment {
+    // 大画面かどうかの判定フラグ
+    private boolean _isLayoutXLarge = true;
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        Activity parentActivity = getActivity();
+        View menuThanksFrame = parentActivity.findViewById(R.id.menuThanksFrame);
+
+        if (menuThanksFrame == null) {
+            _isLayoutXLarge = false;
+        }
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -122,6 +138,24 @@ public class MenuListFragment extends Fragment {
             String menuPrice = item.get("price");
 
             Activity parentActivity = getActivity();
+
+            Bundle bundle = new Bundle();
+            bundle.putString("menuName", menuName);
+            bundle.putString("menuPrice", menuPrice);
+
+            // 大画面の場合
+            if (_isLayoutXLarge) {
+                FragmentManager manager = getFragmentManager();
+                FragmentTransaction transaction = manager.beginTransaction();
+                MenuThanksFragment menuThanksFragment = new MenuThanksFragment();
+                menuThanksFragment.setArguments(bundle);
+                transaction.replace(R.id.menuThanksFrame, menuThanksFragment);
+                transaction.commit();
+            }else{
+                Intent intent = new Intent(parentActivity, MenuThanksActivity.class);
+                intent.putExtras(bundle);
+                startActivity(intent);
+            }
 
             Intent intent = new Intent(parentActivity, MenuThanksActivity.class);
             intent.putExtra("menuName", menuName);
